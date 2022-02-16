@@ -8,8 +8,8 @@ function Node(props) {
         width: "30px",
         minHeight: "20px",
         position: "absolute",
-        top: props.posY,
-        left: props.posX,
+        top: props.clientY,
+        left: props.clientX,
         color: "white",
         backgroundColor: "DodgerBlue",
         fontFamily: "Arial",
@@ -24,6 +24,10 @@ function Node(props) {
             style={styleSquare}
             className="node" 
             onClick={props.onClick} 
+            draggable="true"
+            onDrag={props.onDrag}
+            onDragStart={props.onDragStart}
+            // onPointerMove={props.onDrag}
         >
             {props.value} 
         </div>
@@ -33,33 +37,39 @@ function Node(props) {
 
 class Area extends React.Component {
 
-    componentDidMount() {
-        let area = document.getElementById("area");
-        area.addEventListener("dblclick", (e) => {
-            this.props.onDoubleClick(e); // send Mouse Event to handler
-        })
-    }
-
     render() { 
+
         const currentNodes = this.props.nodes.map((v, nodeNumber) => {
-            console.log("THIS IS this.props.nodes: " + this.props.nodes)
+            // console.log("THIS IS this.props.nodes: " + this.props.nodes)
             return (
                 <Node 
                     key={nodeNumber}
                     // value={this.props.nodes[i]}
-                    posY={this.props.nodes[nodeNumber].clientY}
-                    posX={this.props.nodes[nodeNumber].clientX}
-                    onClick={() => {
-                        this.props.onClick(nodeNumber);
-                        // this.handleClick();
-                    }} 
+                    clientY={this.props.nodes[nodeNumber].clientY}
+                    clientX={this.props.nodes[nodeNumber].clientX}
+                    onClick={() => {this.props.onClick(nodeNumber);}} 
+                    onDrag={dragEvent => this.props.onDrag(nodeNumber, dragEvent)}
+                    onDragStart={dragStartEvent => this.props.onDragStart(nodeNumber, dragStartEvent)}
                 />
             );
         });
 
+
+        const styleArea = {
+            minWidth: "300px",
+            // width: "100%",
+            // height: "100%",
+            minHeight: "300px",
+            backgroundColor: "green",
+        };
+
         
         return (  
-            <div>
+            <div
+                id='area' 
+                style={styleArea} 
+                onDoubleClick={mouseEvent => this.props.onDoubleClick(mouseEvent)}
+            >
                 {currentNodes}
             </div>
         );
@@ -80,55 +90,104 @@ class MindMap extends React.Component {
           }
       }
     
+    jumpTo(moveNumber) {
+        this.setState({
+            moveNumber: moveNumber,
+        })
+    }
+
 
     handleClick(i) {
+        console.log("one click")
         const history = this.state.history.slice(0, this.state.moveNumber + 1); // +1 because end not included in slice
-        const current = history[history.length - 1]; 
+        const historyCopy = [...this.state.history];
+        const current = historyCopy[historyCopy.length - 1]; 
         const nodes = [...current.nodes];
 
 
         this.setState({
-            history: history.concat([{
+            history: historyCopy.concat([{
                 nodes: nodes,
             }]),
-            moveNumber: history.length,
+            moveNumber: historyCopy.length,
         })
     }
 
 
     handleDoubleClick(mouseEvent) {
-        const history = this.state.history.slice(0, this.state.moveNumber + 1); // +1 because end not included in slice
-        const current = history[history.length - 1]; 
+        const historyCopy = this.state.history.slice(0, this.state.moveNumber + 1); // +1 because end not included in slice; .slice instead of ... should be used because we have to truncate up to moveNumber to discard all needn't moves (it's for undo)
+        const current = historyCopy[historyCopy.length - 1]; 
         const nodes = [...current.nodes];
 
-        nodes[current.nodes.length] = mouseEvent;
+        console.log(mouseEvent)
+        
+        if (mouseEvent.clientY <= 25 || mouseEvent.clientX <= 25) {
+            return
+        } else {
+            
+            let node = {
+                clientY: mouseEvent.clientY,
+                clientX: mouseEvent.clientX,
+            }
+            nodes[nodes.length] = node;
+    
+            this.setState({
+                history: historyCopy.concat([{
+                    nodes: nodes,
+                }]),
+                moveNumber: historyCopy.length,
+            })
+        }
 
+    }
+
+
+    handleOnDrag(nodeNumber, dragEvent) {
+        const clientY = dragEvent.clientY;
+        const clientX = dragEvent.clientX;
+
+        if (clientY === 0 && clientX === 0) {
+            console.log("zero")
+            return
+        }
+
+        const historyCopy = [...this.state.history]; // there .slice isn't used as there no need to store new moves
+        historyCopy[historyCopy.length - 1].nodes[nodeNumber].clientY = clientY;
+        historyCopy[historyCopy.length - 1].nodes[nodeNumber].clientX = clientX;
         this.setState({
-            history: history.concat([{
-                nodes: nodes,
-            }]),
-            moveNumber: history.length,
+            history: historyCopy
         })
     }
 
 
-    jumpTo(moveNumber) {
+    handleOnDragStart(nodeNumber, dragStartEvent) {
+        let dragImg = new Image(0,0);
+        dragImg.src ='data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7';
+        dragStartEvent.dataTransfer.setDragImage(dragImg, 0, 0);
+
+        const historyCopy = this.state.history.slice(0, this.state.moveNumber + 1); // +1 because end not included in slice
+        const current = historyCopy[historyCopy.length - 1]; 
+        const nodes = [...current.nodes];
+
+        console.log(dragStartEvent)
+        
+        let nodeAlikeState = {
+            clientY: dragStartEvent.clientY,
+            clientX: dragStartEvent.clientX,
+        }
+        nodes[nodeNumber] = nodeAlikeState; // it's not new node as in handeDoubleClick, it's rather state (new coordinates) of previous one
+
         this.setState({
-            moveNumber: moveNumber,
+            history: historyCopy.concat([{
+                nodes: nodes,
+            }]),
+            moveNumber: historyCopy.length,
         })
-      }
+    }
 
 
     render() {
-        console.log(this.state.history)
-        const styleArea = {
-            minWidth: "300px",
-            // width: "100%",
-            // height: "100%",
-            minHeight: "300px",
-            backgroundColor: "green",
-        };
-        
+        // console.log(this.state.history)
         const history = this.state.history;
         const current = history[this.state.moveNumber];
 
@@ -141,22 +200,19 @@ class MindMap extends React.Component {
             );
         });
 
+        
         return (
             <div className='mindmap'>
-                <div id='area' style={styleArea}>
+
                     <Area 
-                        // nodes={current.nodes}
                         nodes={current.nodes}
                         // onClick={(i) => {this.handleClick(i), this.handleClick(i)}}
-                        onClick={i => {
-                            this.handleClick(i);
-                        }}
-                        onDoubleClick={(e) => {
-                            this.handleDoubleClick(e);
-                        }}
-                        // onDblClick={i => this.handleDoubleClick(i)}
+                        onClick={i => {this.handleClick(i);}}
+                        onDoubleClick={(mouseEvent) => {this.handleDoubleClick(mouseEvent);}}
+                        onDrag={(nodeNumber, dragEvent) => this.handleOnDrag(nodeNumber, dragEvent)}
+                        onDragStart={(nodeNumber, dragStartEvent) => this.handleOnDragStart(nodeNumber, dragStartEvent)}
                     />
-                </div>
+
                 <ul>
                     {moves}
                 </ul>
