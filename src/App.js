@@ -1,57 +1,25 @@
 import './App.css';
+import {Node} from './node.js';
 import React, { useState, useEffect, useCallback } from 'react';
+import {Editor, EditorState, } from 'draft-js';
+import 'draft-js/dist/Draft.css';
 
 
-function Node(props) {    
-    const styleSquare = {
-        minWidth: "20px",
-        width: "30px",
-        minHeight: "20px",
-        position: "absolute",
-        top: props.clientY,
-        left: props.clientX,
-        color: "white",
-        backgroundColor: "DodgerBlue",
-        fontFamily: "Arial",
-        display : "flex",
-        flexDirection : "row",
-        flexWrap : "wrap",
-        zIndex: "10",
-        };
-    
-    return (
-        <textarea
-            style={styleSquare}
-            className="node" 
-            onClick={props.onClick} 
-            draggable="true"
-            onDrag={props.onDrag}
-            onDragStart={props.onDragStart}
-            overflow="visible"
-            // disabled="true"
-            // onPointerMove={props.onDrag}
-
-            // contentEditable="true"
-        >
-            {props.value} 
-        </textarea>
-        );
-  }
 
 
 function Area(props){
-
         const currentNodes = props.nodes.map((v, nodeNumber) => {
-            // console.log("THIS IS this.props.nodes: " + this.props.nodes)
             return (
                 <Node 
                     key={nodeNumber}
                     // value={props.nodes[i]}
                     clientY={props.nodes[nodeNumber].clientY}
                     clientX={props.nodes[nodeNumber].clientX}
+                    innerText={props.nodes[nodeNumber].innerText}
                     onClick={() => {props.onClick(nodeNumber);}} 
                     onDrag={dragEvent => props.onDrag(nodeNumber, dragEvent)}
                     onDragStart={dragStartEvent => props.onDragStart(nodeNumber, dragStartEvent)}
+                    onTextChange={textChange => props.onTextChange(nodeNumber, textChange)}
                 />
             );
         });
@@ -82,16 +50,6 @@ function Area(props){
 function MindMap() {
     const [history, setHistory] = useState([{nodes: []}]);
     const [moveNumber, setMoveNumber] = useState(0);
-        
-    
-
-    // useEffect(() => {
-    //     document.addEventListener("keydown", handleUndoRedo(moveNumber, keyEvent));
-    //     return() => {
-    //         document.removeEventListener("keydown", handleUndoRedo(moveNumber, keyEvent));
-    //     }
-    // })
-    
 
 
     function jumpTo(moveNumber) {
@@ -99,7 +57,7 @@ function MindMap() {
     }
 
     const handleUndoRedo = useCallback(keyEvent => {
-        console.log(keyEvent)
+        // console.log(keyEvent)
         // console.log("history.length: " + history.length)
         // console.log("moveNumber: " + moveNumber)
         
@@ -120,7 +78,7 @@ function MindMap() {
             //     setMoveNumber(moveNumber + 1) // redo
             // }
         }
-    }, [moveNumber]); // on update of moveNumber
+    }, [moveNumber]); // to catch update of moveNumber
 
     useEffect(() => {
         window.addEventListener("keydown", handleUndoRedo);
@@ -154,16 +112,17 @@ function MindMap() {
             let node = {
                 clientY: mouseEvent.clientY,
                 clientX: mouseEvent.clientX,
+                innerText: '',
             }
             nodes[nodes.length] = node;
     
-            setHistory(historyCopy.concat([{nodes: nodes}]));
+            setHistory(historyCopy.concat([{nodes: nodes}])); // concat in needed only when we need add new move (for undo & redo)
             setMoveNumber(historyCopy.length)
         }
     }
 
 
-    function handleOnDrag(nodeNumber, dragEvent) {
+    function handleOnDrag(nodeNumber, dragEvent) { // this whole function needed to change coordinates of nodes on drag
         const clientY = dragEvent.clientY;
         const clientX = dragEvent.clientX;
 
@@ -172,27 +131,41 @@ function MindMap() {
             return
         }
 
-        const historyCopy = [...history]; // there .slice isn't used as there no need to store new moves
+        const historyCopy = [...history]; // there .slice isn't used as there no need to store new moves (because there only coordinates changed)
         historyCopy[historyCopy.length - 1].nodes[nodeNumber].clientY = clientY;
         historyCopy[historyCopy.length - 1].nodes[nodeNumber].clientX = clientX;
 
         setHistory(historyCopy)
     }
 
+    function handleOnTextChange(nodeNumber, textChange) {
+        const historyCopy = history.slice(0, moveNumber + 1); // +1 because end not included in slice
+        const current = historyCopy[historyCopy.length - 1]; 
+        const nodes = [...current.nodes];
+
+        let nodeAlikeState = {
+            clientY: nodes[nodeNumber].clientY, // it's needed for copying last position of edited node
+            clientX: nodes[nodeNumber].clientX, // it's needed for copying last position of edited node
+            innerText: textChange,
+        }
+        nodes[nodeNumber] = nodeAlikeState; // it's not new node as in handeDoubleClick, it's rather state (new coordinates) of previous one
+        
+        setHistory(historyCopy.concat([{nodes: nodes}])); // concat in needed only when we need add new move (for undo & redo)
+        setMoveNumber(historyCopy.length)
+    }
+
 
     // this handle serves several goals:
     // 1) it hides draggable shadow
     // 2) it adds new move for making history of states
-    function handleOnDragStart(nodeNumber, dragStartEvent) {
+    function handleOnDragStart(nodeNumber, dragStartEvent) { // this whole function needed NOT to change coordinates on drag, but to store coordinates and record new move (for undo & redo)
         let dragImg = new Image(0,0);
-        dragImg.src ='data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7';
+        dragImg.src ='data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7'; // empty image
         dragStartEvent.dataTransfer.setDragImage(dragImg, 0, 0);
 
         const historyCopy = history.slice(0, moveNumber + 1); // +1 because end not included in slice
         const current = historyCopy[historyCopy.length - 1]; 
         const nodes = [...current.nodes];
-
-        // console.log(dragStartEvent)
         
         let nodeAlikeState = {
             clientY: dragStartEvent.clientY,
@@ -213,6 +186,10 @@ function MindMap() {
         );
     });
 
+    // console.log(history[moveNumber].nodes)
+
+
+    const [editorState, setEditorState] = useState(() => EditorState.createEmpty())
 
     return (
         <div 
@@ -227,11 +204,15 @@ function MindMap() {
                     onDoubleClick={mouseEvent => handleDoubleClick(mouseEvent)}
                     onDrag={(nodeNumber, dragEvent) => handleOnDrag(nodeNumber, dragEvent)}
                     onDragStart={(nodeNumber, dragStartEvent) => handleOnDragStart(nodeNumber, dragStartEvent)}
+                    onTextChange={(nodeNumber, textChange) => handleOnTextChange(nodeNumber, textChange)}
                 />
 
             <ul>
                 {moves}
             </ul>
+            
+
+            <Editor editorState={editorState} onChange={setEditorState} />
         </div>
         );
 }
