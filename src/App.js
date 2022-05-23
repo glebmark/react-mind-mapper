@@ -1,8 +1,9 @@
 import './App.css';
-import {Node} from './node.js';
+import {Node} from './element.js';
 import React, { useState, useEffect, useCallback } from 'react';
-import {Editor, EditorState, } from 'draft-js';
-import 'draft-js/dist/Draft.css';
+// import {Editor, EditorState, } from 'draft-js';
+// import 'draft-js/dist/Draft.css';
+import { unmountComponentAtNode, render } from "react-dom";
 
 
 
@@ -16,13 +17,16 @@ function Area(props){
                     clientY={props.nodes[nodeNumber].clientY}
                     clientX={props.nodes[nodeNumber].clientX}
                     innerText={props.nodes[nodeNumber].innerText}
-                    onClick={() => {props.onClick(nodeNumber);}} 
+                    // onClick={() => props.onClick(nodeNumber)}
+                    // onClick={props.onClick}
                     onDrag={dragEvent => props.onDrag(nodeNumber, dragEvent)}
                     onDragStart={dragStartEvent => props.onDragStart(nodeNumber, dragStartEvent)}
                     onTextChange={textChange => props.onTextChange(nodeNumber, textChange)}
                 />
             );
         });
+
+        
 
 
         const styleArea = {
@@ -189,30 +193,34 @@ function MindMap() {
     // console.log(history[moveNumber].nodes)
 
 
-    const [editorState, setEditorState] = useState(() => EditorState.createEmpty())
+  
+
+    //   const handleOnClick = () => {
+    //     console.log('one click')
+    //     unmountComponentAtNode(document.getElementById('editor'));
+
+        
+    //   };
+
+
 
     return (
         <div 
             className='mindmap'
             onKeyDown={(keyEvent) => handleUndoRedo(moveNumber, keyEvent)}
         >
-
                 <Area 
                     nodes={history[moveNumber].nodes}
                     // onClick={(i) => {this.handleClick(i), this.handleClick(i)}}
-                    // onClick={i => handleClick(i)}
+                    // onClick={(nodeNumber) => handleOnClick(nodeNumber)}
                     onDoubleClick={mouseEvent => handleDoubleClick(mouseEvent)}
                     onDrag={(nodeNumber, dragEvent) => handleOnDrag(nodeNumber, dragEvent)}
                     onDragStart={(nodeNumber, dragStartEvent) => handleOnDragStart(nodeNumber, dragStartEvent)}
                     onTextChange={(nodeNumber, textChange) => handleOnTextChange(nodeNumber, textChange)}
                 />
-
             <ul>
                 {moves}
             </ul>
-            
-
-            <Editor editorState={editorState} onChange={setEditorState} />
         </div>
         );
 }
