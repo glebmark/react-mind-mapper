@@ -12,15 +12,18 @@ function Area(props){
         const currentNodes = props.nodes.map((v, nodeNumber) => {
             return (
                 <Node 
-                    key={nodeNumber}
+                    id={"node" + nodeNumber}
+                    key={"node" + nodeNumber}
+                    // nodeNumber={nodeNumber}
                     // value={props.nodes[i]}
                     clientY={props.nodes[nodeNumber].clientY}
                     clientX={props.nodes[nodeNumber].clientX}
-                    innerText={props.nodes[nodeNumber].innerText}
+                    htmlOutputFromEditor={props.nodes[nodeNumber].htmlOutputFromEditor}
                     // onClick={() => props.onClick(nodeNumber)}
                     // onClick={props.onClick}
                     onDrag={dragEvent => props.onDrag(nodeNumber, dragEvent)}
-                    onDragStart={dragStartEvent => props.onDragStart(nodeNumber, dragStartEvent)}
+                    onDragStart={(dragStartEvent, textChange) => props.onDragStart(nodeNumber, dragStartEvent, textChange)}
+                    onDragEnd={(dragEndEvent, textChange) => props.onDragEnd(nodeNumber, dragEndEvent, textChange)}
                     onTextChange={textChange => props.onTextChange(nodeNumber, textChange)}
                 />
             );
@@ -116,7 +119,7 @@ function MindMap() {
             let node = {
                 clientY: mouseEvent.clientY,
                 clientX: mouseEvent.clientX,
-                innerText: '',
+                htmlOutputFromEditor: '',
             }
             nodes[nodes.length] = node;
     
@@ -146,11 +149,12 @@ function MindMap() {
         const historyCopy = history.slice(0, moveNumber + 1); // +1 because end not included in slice
         const current = historyCopy[historyCopy.length - 1]; 
         const nodes = [...current.nodes];
+        // console.log(textChange)
 
         let nodeAlikeState = {
             clientY: nodes[nodeNumber].clientY, // it's needed for copying last position of edited node
             clientX: nodes[nodeNumber].clientX, // it's needed for copying last position of edited node
-            innerText: textChange,
+            htmlOutputFromEditor: textChange,
         }
         nodes[nodeNumber] = nodeAlikeState; // it's not new node as in handeDoubleClick, it's rather state (new coordinates) of previous one
         
@@ -162,10 +166,12 @@ function MindMap() {
     // this handle serves several goals:
     // 1) it hides draggable shadow
     // 2) it adds new move for making history of states
-    function handleOnDragStart(nodeNumber, dragStartEvent) { // this whole function needed NOT to change coordinates on drag, but to store coordinates and record new move (for undo & redo)
-        let dragImg = new Image(0,0);
-        dragImg.src ='data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7'; // empty image
-        dragStartEvent.dataTransfer.setDragImage(dragImg, 0, 0);
+    function handleOnDragStart(nodeNumber, dragStartEvent, textChange) { // this whole function needed NOT to change coordinates on drag, but to store coordinates and record new move (for undo & redo)
+        // let dragImg = new Image(0,0);
+        // dragImg.src ='data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7'; // empty image
+        // dragStartEvent.dataTransfer.setDragImage(dragImg, 0, 0);
+
+        console.log(textChange)
 
         const historyCopy = history.slice(0, moveNumber + 1); // +1 because end not included in slice
         const current = historyCopy[historyCopy.length - 1]; 
@@ -174,12 +180,37 @@ function MindMap() {
         let nodeAlikeState = {
             clientY: dragStartEvent.clientY,
             clientX: dragStartEvent.clientX,
+            htmlOutputFromEditor: textChange,
         }
         nodes[nodeNumber] = nodeAlikeState; // it's not new node as in handeDoubleClick, it's rather state (new coordinates) of previous one
 
         setHistory(historyCopy.concat([{nodes: nodes}]));
         setMoveNumber(historyCopy.length)
     }
+
+
+    function handleOnDragEnd(nodeNumber, dragEndEvent, textChange) { // this whole function needed NOT to change coordinates on drag, but to store coordinates and record new move (for undo & redo)
+        // let dragImg = new Image(0,0);
+        // dragImg.src ='data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7'; // empty image
+        // dragStartEvent.dataTransfer.setDragImage(dragImg, 0, 0);
+        console.log(textChange)
+
+        const historyCopy = history.slice(0, moveNumber + 1); // +1 because end not included in slice
+        const current = historyCopy[historyCopy.length - 1]; 
+        const nodes = [...current.nodes];
+        
+        let nodeAlikeState = {
+            clientY: dragEndEvent.clientY,
+            clientX: dragEndEvent.clientX,
+            htmlOutputFromEditor: textChange,
+        }
+        nodes[nodeNumber] = nodeAlikeState; // it's not new node as in handeDoubleClick, it's rather state (new coordinates) of previous one
+
+        setHistory(historyCopy.concat([{nodes: nodes}]));
+        setMoveNumber(historyCopy.length)
+    }
+
+    
 
 
     const moves = history.map((step, moveNumber) => {
@@ -215,7 +246,8 @@ function MindMap() {
                     // onClick={(nodeNumber) => handleOnClick(nodeNumber)}
                     onDoubleClick={mouseEvent => handleDoubleClick(mouseEvent)}
                     onDrag={(nodeNumber, dragEvent) => handleOnDrag(nodeNumber, dragEvent)}
-                    onDragStart={(nodeNumber, dragStartEvent) => handleOnDragStart(nodeNumber, dragStartEvent)}
+                    onDragStart={(nodeNumber, dragStartEvent, textChange) => handleOnDragStart(nodeNumber, dragStartEvent, textChange)}
+                    onDragEnd={(nodeNumber, dragEndEvent, textChange) => handleOnDragEnd(nodeNumber, dragEndEvent, textChange)}
                     onTextChange={(nodeNumber, textChange) => handleOnTextChange(nodeNumber, textChange)}
                 />
             <ul>
