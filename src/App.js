@@ -3,8 +3,9 @@ import {Node} from './element.js';
 import React, { useState, useEffect, useCallback } from 'react';
 // import {Editor, EditorState, } from 'draft-js';
 // import 'draft-js/dist/Draft.css';
+import './mainStyles.css';
 import { unmountComponentAtNode, render } from "react-dom";
-
+import CurvedArrow from "react-curved-arrow";
 
 
 
@@ -29,15 +30,29 @@ function Area(props){
             );
         });
 
+        // const currentArrows = props.arrows.map((v, arrowNumber) => {
+        //     return (
+        //         <CurvedArrow 
+        //             fromSelector="#node0" 
+        //             toSelector="#node1" 
+        //             dynamicUpdate="true"
+        //             width="2"
+        //             middleY="4"
+        //             />
+        //     );
+        // });
+
+        
+
         
 
 
         const styleArea = {
-            minWidth: "300px",
-            // width: "100%",
-            // height: "100%",
-            minHeight: "300px",
-            backgroundColor: "green",
+            // minWidth: "300px",
+            width: "100%",
+            height: "100%",
+            // minHeight: "300px",
+            backgroundColor: "#796385",
         };
 
         
@@ -48,6 +63,7 @@ function Area(props){
                 onDoubleClick={mouseEvent => props.onDoubleClick(mouseEvent)}
             >
                 {currentNodes}
+                {/* {currentArrows} */}
             </div>
         );
 }
@@ -167,9 +183,9 @@ function MindMap() {
     // 1) it hides draggable shadow
     // 2) it adds new move for making history of states
     function handleOnDragStart(nodeNumber, dragStartEvent, textChange) { // this whole function needed NOT to change coordinates on drag, but to store coordinates and record new move (for undo & redo)
-        // let dragImg = new Image(0,0);
-        // dragImg.src ='data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7'; // empty image
-        // dragStartEvent.dataTransfer.setDragImage(dragImg, 0, 0);
+        let dragImg = new Image(0,0);
+        dragImg.src ='data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7'; // empty image
+        dragStartEvent.dataTransfer.setDragImage(dragImg, 0, 0);
 
         console.log(textChange)
 
@@ -210,13 +226,23 @@ function MindMap() {
         setMoveNumber(historyCopy.length)
     }
 
-    
-
+    const styleMovesList = {
+        position: "absolute",
+        top: "10px",
+        left: "10px",
+        color: "white",
+        fontFamily: "Arial",
+        zIndex: "10",
+        };
 
     const moves = history.map((step, moveNumber) => {
         return (
             <li key={moveNumber}>
-                <button onClick={() => jumpTo(moveNumber)}>Jump to move: {moveNumber}</button>
+                <button 
+                    onClick={() => jumpTo(moveNumber)}
+                    >
+                        Jump to move: {moveNumber}
+                </button>
             </li>
         );
     });
@@ -232,13 +258,17 @@ function MindMap() {
 
         
     //   };
-
+    const styleMindmap = {
+        width: "100%",
+        height: "100%",
+    };
 
 
     return (
         <div 
             className='mindmap'
             onKeyDown={(keyEvent) => handleUndoRedo(moveNumber, keyEvent)}
+            style={styleMindmap} 
         >
                 <Area 
                     nodes={history[moveNumber].nodes}
@@ -250,7 +280,7 @@ function MindMap() {
                     onDragEnd={(nodeNumber, dragEndEvent, textChange) => handleOnDragEnd(nodeNumber, dragEndEvent, textChange)}
                     onTextChange={(nodeNumber, textChange) => handleOnTextChange(nodeNumber, textChange)}
                 />
-            <ul>
+            <ul style={styleMovesList}>
                 {moves}
             </ul>
         </div>
