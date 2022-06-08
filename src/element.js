@@ -6,6 +6,7 @@ import {convertToRaw,} from 'draft-js';
 import {stateToHTML} from 'draft-js-export-html';
 
 
+
 export function Node(props) {    
     // console.log(props)
     
@@ -28,7 +29,7 @@ export function Node(props) {
 
         if (event.target.id === "area" || (event.target.className === "node" && event.target.id !== props.id)) {
             setIsClicked(false)
-            } else if ((event.target.id === props.id || event.target.id === props.id + "editorWrapper" )&& event.target.id !== "area") {
+            } else if ((event.target.id === props.id || event.target.id === (props.id + "editorWrapper") ) && event.target.id !== "area") {
                 // console.log(props.id)
                 // console.log(event.target.id)
                 setIsClicked(true)
@@ -54,7 +55,7 @@ export function Node(props) {
 
     const editorFocusRef = useRef(null);
     useEffect(() => {
-        console.log(editorState.getSelection().getHasFocus())
+        // console.log(editorState.getSelection().getHasFocus())
         if (editorFocusRef.current) {
             editorFocusRef.current.focus();
         }
@@ -166,7 +167,6 @@ export function Node(props) {
                 id={props.id}
                 style={styleNode}
                 className="node" 
-                // onClick={props.onClick} 
                 // onClick={handleOnClick} 
                 draggable="true"
                 onDrag={props.onDrag}
@@ -183,10 +183,10 @@ export function Node(props) {
                 ref={innerRef}
                 
             >
-                <div id={props.id + "top"} style={stylePointTop}></div>
-                <div id={props.id + "right"} style={stylePointRight}></div>
-                <div id={props.id + "bottom"} style={stylePointBottom}></div>
-                <div id={props.id + "left"} style={stylePointLeft}></div>
+                <div id={props.id + "top"} style={stylePointTop} onClick={props.onClick} ></div>
+                <div id={props.id + "right"} style={stylePointRight} onClick={props.onClick} ></div>
+                <div id={props.id + "bottom"} style={stylePointBottom} onClick={props.onClick} ></div>
+                <div id={props.id + "left"} style={stylePointLeft} onClick={props.onClick} ></div>
 
                 {isClicked ? divEditor : null}
                 <div

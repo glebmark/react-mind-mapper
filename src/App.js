@@ -1,15 +1,16 @@
 import './App.css';
 import {Node} from './element.js';
 import React, { useState, useEffect, useCallback } from 'react';
-// import {Editor, EditorState, } from 'draft-js';
-// import 'draft-js/dist/Draft.css';
 import './mainStyles.css';
-import { unmountComponentAtNode, render } from "react-dom";
 import CurvedArrow from "react-curved-arrow";
 
 
 
 function Area(props){
+
+    console.log("THIS IS PROPS")
+    console.log(props)
+
         const currentNodes = props.nodes.map((v, nodeNumber) => {
             return (
                 <Node 
@@ -17,10 +18,13 @@ function Area(props){
                     key={"node" + nodeNumber}
                     // nodeNumber={nodeNumber}
                     // value={props.nodes[i]}
-                    clientY={props.nodes[nodeNumber].clientY}
-                    clientX={props.nodes[nodeNumber].clientX}
-                    htmlOutputFromEditor={props.nodes[nodeNumber].htmlOutputFromEditor}
-                    // onClick={() => props.onClick(nodeNumber)}
+                    // clientY={props.nodes[nodeNumber].clientY}
+                    // clientX={props.nodes[nodeNumber].clientX}
+                    clientY={v.clientY}
+                    clientX={v.clientX}
+                    // htmlOutputFromEditor={props.nodes[nodeNumber].htmlOutputFromEditor}
+                    htmlOutputFromEditor={v.htmlOutputFromEditor}
+                    onClick={(clickEvent) => props.onClick(clickEvent)}
                     // onClick={props.onClick}
                     onDrag={dragEvent => props.onDrag(nodeNumber, dragEvent)}
                     onDragStart={(dragStartEvent, textChange) => props.onDragStart(nodeNumber, dragStartEvent, textChange)}
@@ -30,17 +34,20 @@ function Area(props){
             );
         });
 
-        // const currentArrows = props.arrows.map((v, arrowNumber) => {
-        //     return (
-        //         <CurvedArrow 
-        //             fromSelector="#node0" 
-        //             toSelector="#node1" 
-        //             dynamicUpdate="true"
-        //             width="2"
-        //             middleY="4"
-        //             />
-        //     );
-        // });
+        const currentArrows = props.arrows.map((v, arrowNumber) => {
+            console.log(v)
+            return (
+                <CurvedArrow 
+                    fromSelector={"#" + v.fromSelector} 
+                    toSelector={"#" + v.toSelector} 
+                    dynamicUpdate="true"
+                    width="2"
+                    middleY="60"
+                    id={"arrow" + arrowNumber}
+                    key={"arrow" + arrowNumber}
+                    />
+            );
+        });
 
         
 
@@ -60,10 +67,10 @@ function Area(props){
             <div
                 id='area' 
                 style={styleArea} 
-                onDoubleClick={mouseEvent => props.onDoubleClick(mouseEvent)}
+                onDoubleClick={mouseEvent => props.onDoubleClick(mouseEvent)} // creation of new nodes
             >
                 {currentNodes}
-                {/* {currentArrows} */}
+                {currentArrows}
             </div>
         );
 }
@@ -71,7 +78,8 @@ function Area(props){
 
 
 function MindMap() {
-    const [history, setHistory] = useState([{nodes: []}]);
+    const [history, setHistory] = useState([{nodes: [], arrows: []}]);
+    const [arrowBuffer, setArrowBuffer] = useState([]); // for temporarily record the pairs of points between which arrow is located
     const [moveNumber, setMoveNumber] = useState(0);
 
 
@@ -110,21 +118,89 @@ function MindMap() {
         }
     }, [handleUndoRedo])
 
-    function handleClick(i) {
+
+    function handleClickArrow(clickEvent) {
         // console.log("one click")
+        // console.log(clickEvent.target)
         const historyCopy = history.slice(0, moveNumber + 1); // +1 because end not included in slice
         const current = historyCopy[historyCopy.length - 1]; 
         const nodes = [...current.nodes];
+        const arrows = [...current.arrows];
+    
+        // const bufferCopy = arrowBuffer.slice(0, moveNumber + 1); // +1 because end not included in slice
+        // const currentBuffer = bufferCopy[bufferCopy.length - 1]; 
+        const arrowBufferCopy = [...arrowBuffer];
 
-        setHistory(historyCopy.concat([{nodes: nodes}]));
-        setMoveNumber(historyCopy.length)
+
+
+        if (arrowBufferCopy.length === 2) {
+            setArrowBuffer([])
+        } else {
+            // let arrowBufferCopy2 = arrowBufferCopy.push(clickEvent.target.id)
+            // console.log("THIS IS arrowBufferCopy3")
+            // console.log(arrowBufferCopy2)
+
+
+            // let arrowBufferCopy2 = arrowBufferCopy.concat(clickEvent.target.id)
+            setArrowBuffer(arrowBufferCopy.concat(clickEvent.target.id))
+        }
+        
+        
+
+        if (arrowBuffer.length === 2) {
+            let arrow = {
+                fromSelector: arrowBufferCopy[0],
+                toSelector: arrowBufferCopy[1],
+            }
+    
+            arrows[arrows.length] = arrow;
+    
+    
+            setHistory(historyCopy.concat([{nodes: nodes, arrows: arrows}]));
+            setMoveNumber(historyCopy.length)
+
+        }
+
+        
+
     }
+
+
+    // function handleOnDragStartArrow(arrowNumber, dragStartEvent) { 
+    //     let dragImg = new Image(0,0);
+    //     dragImg.src ='data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7'; // empty image
+    //     dragStartEvent.dataTransfer.setDragImage(dragImg, 0, 0);
+
+
+    //     const historyCopy = history.slice(0, moveNumber + 1); // +1 because end not included in slice
+    //     const current = historyCopy[historyCopy.length - 1]; 
+    //     const nodes = [...current.nodes];
+    //     const arrows = [...current.arrows];
+        
+    //     let arrowAlikeState = {
+    //         fromSelector: "#node0",
+    //         toSelector: "#node1",
+    //     }
+    //     arrows[arrowNumber] = arrowAlikeState; 
+
+
+    //     setHistory(historyCopy.concat([{nodes: nodes, arrows: arrows}]));
+    //     setMoveNumber(historyCopy.length)
+    // }
+
+
+
+
+
+
+
 
 
     function handleDoubleClick(mouseEvent) {
         const historyCopy = history.slice(0, moveNumber + 1); // +1 because end not included in slice; .slice instead of ... should be used because we have to truncate up to moveNumber to discard all needn't moves (it's for undo)
         const current = historyCopy[historyCopy.length - 1]; 
         const nodes = [...current.nodes];
+        const arrows = [...current.arrows];
 
         // console.log(mouseEvent)
         
@@ -139,7 +215,7 @@ function MindMap() {
             }
             nodes[nodes.length] = node;
     
-            setHistory(historyCopy.concat([{nodes: nodes}])); // concat in needed only when we need add new move (for undo & redo)
+            setHistory(historyCopy.concat([{nodes: nodes, arrows: arrows}])); // concat in needed only when we need add new move (for undo & redo)
             setMoveNumber(historyCopy.length)
         }
     }
@@ -148,6 +224,8 @@ function MindMap() {
     function handleOnDrag(nodeNumber, dragEvent) { // this whole function needed to change coordinates of nodes on drag
         const clientY = dragEvent.clientY;
         const clientX = dragEvent.clientX;
+
+        console.log(dragEvent)
 
         if (clientY === 0 && clientX === 0) {
             console.log("zero")
@@ -165,6 +243,7 @@ function MindMap() {
         const historyCopy = history.slice(0, moveNumber + 1); // +1 because end not included in slice
         const current = historyCopy[historyCopy.length - 1]; 
         const nodes = [...current.nodes];
+        const arrows = [...current.arrows];
         // console.log(textChange)
 
         let nodeAlikeState = {
@@ -174,7 +253,7 @@ function MindMap() {
         }
         nodes[nodeNumber] = nodeAlikeState; // it's not new node as in handeDoubleClick, it's rather state (new coordinates) of previous one
         
-        setHistory(historyCopy.concat([{nodes: nodes}])); // concat in needed only when we need add new move (for undo & redo)
+        setHistory(historyCopy.concat([{nodes: nodes, arrows: arrows}])); // concat in needed only when we need add new move (for undo & redo)
         setMoveNumber(historyCopy.length)
     }
 
@@ -187,11 +266,12 @@ function MindMap() {
         dragImg.src ='data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7'; // empty image
         dragStartEvent.dataTransfer.setDragImage(dragImg, 0, 0);
 
-        console.log(textChange)
+        // console.log(textChange)
 
         const historyCopy = history.slice(0, moveNumber + 1); // +1 because end not included in slice
         const current = historyCopy[historyCopy.length - 1]; 
         const nodes = [...current.nodes];
+        const arrows = [...current.arrows];
         
         let nodeAlikeState = {
             clientY: dragStartEvent.clientY,
@@ -200,7 +280,7 @@ function MindMap() {
         }
         nodes[nodeNumber] = nodeAlikeState; // it's not new node as in handeDoubleClick, it's rather state (new coordinates) of previous one
 
-        setHistory(historyCopy.concat([{nodes: nodes}]));
+        setHistory(historyCopy.concat([{nodes: nodes, arrows: arrows}]));
         setMoveNumber(historyCopy.length)
     }
 
@@ -209,11 +289,12 @@ function MindMap() {
         // let dragImg = new Image(0,0);
         // dragImg.src ='data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7'; // empty image
         // dragStartEvent.dataTransfer.setDragImage(dragImg, 0, 0);
-        console.log(textChange)
+        // console.log(textChange)
 
         const historyCopy = history.slice(0, moveNumber + 1); // +1 because end not included in slice
         const current = historyCopy[historyCopy.length - 1]; 
         const nodes = [...current.nodes];
+        const arrows = [...current.arrows];
         
         let nodeAlikeState = {
             clientY: dragEndEvent.clientY,
@@ -222,7 +303,7 @@ function MindMap() {
         }
         nodes[nodeNumber] = nodeAlikeState; // it's not new node as in handeDoubleClick, it's rather state (new coordinates) of previous one
 
-        setHistory(historyCopy.concat([{nodes: nodes}]));
+        setHistory(historyCopy.concat([{nodes: nodes, arrows: arrows}]));
         setMoveNumber(historyCopy.length)
     }
 
@@ -272,8 +353,9 @@ function MindMap() {
         >
                 <Area 
                     nodes={history[moveNumber].nodes}
+                    arrows={history[moveNumber].arrows}
                     // onClick={(i) => {this.handleClick(i), this.handleClick(i)}}
-                    // onClick={(nodeNumber) => handleOnClick(nodeNumber)}
+                    onClick={(clickEvent) => handleClickArrow(clickEvent)}
                     onDoubleClick={mouseEvent => handleDoubleClick(mouseEvent)}
                     onDrag={(nodeNumber, dragEvent) => handleOnDrag(nodeNumber, dragEvent)}
                     onDragStart={(nodeNumber, dragStartEvent, textChange) => handleOnDragStart(nodeNumber, dragStartEvent, textChange)}
