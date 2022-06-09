@@ -24,15 +24,19 @@ export function Node(props) {
 
     const handleClick = (event) => {
         // console.log(event.target)
+        // console.log(props.id)
+        // console.log(event.target.parentElement.parentElement)
     
         // console.log(props.nodeNumber)
         // console.log(innerRef.current)
 
         if (event.target.id === "area" || (event.target.className === "node" && event.target.id !== props.id)) {
             setIsClicked(false)
-            } else if ((event.target.id === props.id || event.target.id === (props.id + "editorWrapper") ) && event.target.id !== "area") {
-                // console.log(props.id)
-                // console.log(event.target.id)
+            } else if ((event.target.id === props.id || 
+                event.target.id === (props.id + "editorWrapper") || 
+                event.target.parentElement.parentElement.id === props.id || 
+                event.target.parentElement.parentElement.id === (props.id + "editorWrapper")) && 
+                event.target.id !== "area") {
                 setIsClicked(true)
             }
     }
@@ -44,11 +48,12 @@ export function Node(props) {
         // console.log(div)
         div.focus()
         
-        div.addEventListener("click", handleClick);
+        // div.addEventListener("click", handleClick,);
         area.addEventListener("click", handleClick);
+
         return() => {
+            // div.removeEventListener("click", handleClick);
             area.removeEventListener("click", handleClick);
-            div.removeEventListener("click", handleClick);
         }
     }, [handleClick])
 
@@ -82,7 +87,7 @@ export function Node(props) {
 
 
     const styleEditorWrapper = {
-        minWidth: "20px",
+        minWidth: "30px",
         // width: "30px",
         // height: "50px",
         minHeight: "20px",
@@ -91,6 +96,7 @@ export function Node(props) {
         backgroundColor: "green",
         opacity: "0.5",
         zIndex: "11",
+        padding: "4px",
         };
 
         
@@ -123,42 +129,21 @@ export function Node(props) {
                     </div>
     
     const stylePointTop = {
-        // width: "10px",
-        // height: "10px",
-        // backgroundColor: "blue",
-        // zIndex: "11",
-        // position: "absolute",
         top: "-22px",
         left: "calc(50% - (15px / 2))",
-
     }
     
     const stylePointRight = {
-        // width: "10px",
-        // height: "10px",
-        // backgroundColor: "blue",
-        // zIndex: "11",
-        // position: "absolute",
         right: "-22px",
         top: "calc(50% - (15px / 2))",
     }
 
     const stylePointBottom = {
-        // width: "10px",
-        // height: "10px",
-        // backgroundColor: "blue",
-        // zIndex: "11",
-        // position: "absolute",
         bottom: "-22px",
         left: "calc(50% - (15px / 2))",
     }
 
     const stylePointLeft = {
-        // width: "10px",
-        // height: "10px",
-        // backgroundColor: "blue",
-        // zIndex: "11",
-        // position: "absolute",
         left: "-22px",
         top: "calc(50% - (15px / 2))",
     }

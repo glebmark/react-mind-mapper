@@ -8,8 +8,8 @@ import CurvedArrow from "react-curved-arrow";
 
 function Area(props){
 
-    console.log("THIS IS PROPS")
-    console.log(props)
+    // console.log("THIS IS PROPS")
+    // console.log(props)
 
         const currentNodes = props.nodes.map((v, nodeNumber) => {
             return (
@@ -225,7 +225,7 @@ function MindMap() {
         const clientY = dragEvent.clientY;
         const clientX = dragEvent.clientX;
 
-        console.log(dragEvent)
+        // console.log(dragEvent)
 
         if (clientY === 0 && clientX === 0) {
             console.log("zero")
