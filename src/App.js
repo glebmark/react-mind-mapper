@@ -35,7 +35,6 @@ function Area(props){
         });
 
         const currentArrows = props.arrows.map((v, arrowNumber) => {
-            console.log(v)
             return (
                 <CurvedArrow 
                     fromSelector={"#" + v.fromSelector} 
@@ -109,45 +108,29 @@ function MindMap() {
             //     setMoveNumber(moveNumber + 1) // redo
             // }
         }
+
+        setArrowBuffer([])
+        
     }, [moveNumber]); // to catch update of moveNumber
 
     useEffect(() => {
         window.addEventListener("keydown", handleUndoRedo);
+
         return() => {
             window.removeEventListener("keydown", handleUndoRedo);
         }
     }, [handleUndoRedo])
 
-
-    function handleClickArrow(clickEvent) {
-        // console.log("one click")
-        // console.log(clickEvent.target)
+    useEffect(() => {
         const historyCopy = history.slice(0, moveNumber + 1); // +1 because end not included in slice
         const current = historyCopy[historyCopy.length - 1]; 
         const nodes = [...current.nodes];
         const arrows = [...current.arrows];
-    
-        // const bufferCopy = arrowBuffer.slice(0, moveNumber + 1); // +1 because end not included in slice
-        // const currentBuffer = bufferCopy[bufferCopy.length - 1]; 
         const arrowBufferCopy = [...arrowBuffer];
 
 
-
-        if (arrowBufferCopy.length === 2) {
-            setArrowBuffer([])
-        } else {
-            // let arrowBufferCopy2 = arrowBufferCopy.push(clickEvent.target.id)
-            // console.log("THIS IS arrowBufferCopy3")
-            // console.log(arrowBufferCopy2)
-
-
-            // let arrowBufferCopy2 = arrowBufferCopy.concat(clickEvent.target.id)
-            setArrowBuffer(arrowBufferCopy.concat(clickEvent.target.id))
-        }
-        
-        
-
-        if (arrowBuffer.length === 2) {
+        if (arrowBuffer.length >= 2) {
+            console.log("added new arrow")
             let arrow = {
                 fromSelector: arrowBufferCopy[0],
                 toSelector: arrowBufferCopy[1],
@@ -158,11 +141,23 @@ function MindMap() {
     
             setHistory(historyCopy.concat([{nodes: nodes, arrows: arrows}]));
             setMoveNumber(historyCopy.length)
-
+            setArrowBuffer([])
         }
 
-        
+        return() => {
 
+        }
+    }, [arrowBuffer])
+
+
+    function handleClickArrow(clickEvent) {
+        const arrowBufferCopy = [...arrowBuffer];
+
+        if (arrowBufferCopy.length >= 2) {
+            setArrowBuffer([])
+        } else {
+            setArrowBuffer(arrowBufferCopy.concat(clickEvent.target.id))            
+        }
     }
 
 
