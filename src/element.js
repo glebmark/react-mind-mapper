@@ -4,6 +4,7 @@ import { Editor } from "react-draft-wysiwyg";
 import "react-draft-wysiwyg/dist/react-draft-wysiwyg.css";
 import {convertToRaw,} from 'draft-js';
 import {stateToHTML} from 'draft-js-export-html';
+import './mainStyles.css';
 
 
 
@@ -122,44 +123,44 @@ export function Node(props) {
                     </div>
     
     const stylePointTop = {
-        width: "10px",
-        height: "10px",
-        backgroundColor: "blue",
-        zIndex: "11",
-        position: "absolute",
-        top: "-15px",
-        left: "calc(50% - (10px / 2))",
-        alignSelf: "center"
+        // width: "10px",
+        // height: "10px",
+        // backgroundColor: "blue",
+        // zIndex: "11",
+        // position: "absolute",
+        top: "-22px",
+        left: "calc(50% - (15px / 2))",
+
     }
     
     const stylePointRight = {
-        width: "10px",
-        height: "10px",
-        backgroundColor: "blue",
-        zIndex: "11",
-        position: "absolute",
-        right: "-15px",
-        top: "calc(50% - (10px / 2))",
+        // width: "10px",
+        // height: "10px",
+        // backgroundColor: "blue",
+        // zIndex: "11",
+        // position: "absolute",
+        right: "-22px",
+        top: "calc(50% - (15px / 2))",
     }
 
     const stylePointBottom = {
-        width: "10px",
-        height: "10px",
-        backgroundColor: "blue",
-        zIndex: "11",
-        position: "absolute",
-        bottom: "-15px",
-        left: "calc(50% - (10px / 2))",
+        // width: "10px",
+        // height: "10px",
+        // backgroundColor: "blue",
+        // zIndex: "11",
+        // position: "absolute",
+        bottom: "-22px",
+        left: "calc(50% - (15px / 2))",
     }
 
     const stylePointLeft = {
-        width: "10px",
-        height: "10px",
-        backgroundColor: "blue",
-        zIndex: "11",
-        position: "absolute",
-        left: "-15px",
-        top: "calc(50% - (10px / 2))",
+        // width: "10px",
+        // height: "10px",
+        // backgroundColor: "blue",
+        // zIndex: "11",
+        // position: "absolute",
+        left: "-22px",
+        top: "calc(50% - (15px / 2))",
     }
             
     return (
@@ -183,15 +184,16 @@ export function Node(props) {
                 ref={innerRef}
                 
             >
-                <div id={props.id + "top"} style={stylePointTop} onClick={props.onClick} ></div>
-                <div id={props.id + "right"} style={stylePointRight} onClick={props.onClick} ></div>
-                <div id={props.id + "bottom"} style={stylePointBottom} onClick={props.onClick} ></div>
-                <div id={props.id + "left"} style={stylePointLeft} onClick={props.onClick} ></div>
+                <div id={props.id + "top"} className="pointsOfNode" style={stylePointTop} onClick={props.onClick} ></div>
+                <div id={props.id + "right"} className="pointsOfNode" style={stylePointRight} onClick={props.onClick} ></div>
+                <div id={props.id + "bottom"} className="pointsOfNode" style={stylePointBottom} onClick={props.onClick} ></div>
+                <div id={props.id + "left"} className="pointsOfNode" style={stylePointLeft} onClick={props.onClick} ></div>
 
                 {isClicked ? divEditor : null}
                 <div
                     style={styleEditorWrapper}
                     id={props.id + "editorWrapper"}
+                    className={"nodesEditorWrapper"}
                 >
                     <div dangerouslySetInnerHTML={isClicked ? null : {__html: props.htmlOutputFromEditor}}></div>
                 </div>

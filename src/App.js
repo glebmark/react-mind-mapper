@@ -41,7 +41,7 @@ function Area(props){
                     fromSelector={"#" + v.fromSelector} 
                     toSelector={"#" + v.toSelector} 
                     dynamicUpdate="true"
-                    width="2"
+                    width="1"
                     middleY="60"
                     id={"arrow" + arrowNumber}
                     key={"arrow" + arrowNumber}
