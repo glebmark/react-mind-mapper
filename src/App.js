@@ -41,7 +41,7 @@ function Area(props){
                     toSelector={"#" + v.toSelector} 
                     dynamicUpdate="true"
                     width="1"
-                    middleY="60"
+                    middleY={(v.fromSelector.includes("bottom") || v.toSelector.includes("bottom")) ? "-60" : "60"}
                     id={"arrow" + arrowNumber}
                     key={"arrow" + arrowNumber}
                     />
@@ -110,7 +110,7 @@ function MindMap() {
         }
 
         setArrowBuffer([])
-        
+
     }, [moveNumber]); // to catch update of moveNumber
 
     useEffect(() => {
@@ -145,7 +145,7 @@ function MindMap() {
         }
 
         return() => {
-
+            // setArrowBuffer([])
         }
     }, [arrowBuffer])
 

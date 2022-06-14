@@ -68,6 +68,9 @@ export function Node(props) {
     }, [editorFocusRef]);
 
 
+    const htmlOutput = props.htmlOutputFromEditor ? props.htmlOutputFromEditor : "<p style='opacity: 0.3'>Type in</p>"
+
+
 
 
     const styleNode = {
@@ -94,7 +97,7 @@ export function Node(props) {
         // minWidth: "80%",
         // minHeight: "80%",
         backgroundColor: "green",
-        opacity: "0.5",
+        // opacity: "0.5",
         zIndex: "11",
         padding: "4px",
         };
@@ -102,7 +105,6 @@ export function Node(props) {
         
     const styleEditor = {
         width: "420px",
-        zIndex: "11",
         position: "absolute",
         top: "-185px",
         };
@@ -119,7 +121,6 @@ export function Node(props) {
                                     props.onTextChange(html);
                                     }}
                                 onEditorStateChange={setEditorState}
-                                zIndex={11}
                                 // handleKeyCommand={handleKeyCommand}
                                 // plugins={plugins}
                                 // ref={editor}
@@ -165,6 +166,7 @@ export function Node(props) {
                 // onInput={(e) => props.onTextChange(e)}
                 // disabled="true"
                 // onPointerMove={props.onDrag}
+                data-placeholder='data'
                 
                 ref={innerRef}
                 
@@ -179,8 +181,9 @@ export function Node(props) {
                     style={styleEditorWrapper}
                     id={props.id + "editorWrapper"}
                     className={"nodesEditorWrapper"}
+                    
                 >
-                    <div dangerouslySetInnerHTML={isClicked ? null : {__html: props.htmlOutputFromEditor}}></div>
+                    <div dangerouslySetInnerHTML={isClicked ? null : {__html: htmlOutput}}></div>
                 </div>
             </div>
         );

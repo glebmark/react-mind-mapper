@@ -17,6 +17,16 @@ p {
     background-color: white;
 }
 
+.editor, .rdw-editor-main, .rdw-editor-wrapper, .rdw-editor-toolbar {
+    z-index: 99 !important;
+    /* position: absolute; */
+    opacity: .99 !important;
+}
+
+#area .node {
+    opacity: .99 !important;
+  }
+
 .node:hover .pointsOfNode {
     visibility: visible;
 }
@@ -56,3 +66,14 @@ p {
     color: #ffee10;
     box-shadow: 0 0 15px #ffee10;
 }
+
+
+div[class*="node"]:empty::before {
+    color: grey;
+  }
+  div[class*="node"][data-placeholder]:not([data-placeholder=""]):empty::before {
+    content: attr(data-placeholder);
+  }
+  div[class*="node"]:empty::before {
+    content: 'fallback placeholder';
+  }
