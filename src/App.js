@@ -59,6 +59,7 @@ function Area(props){
             height: "100%",
             // minHeight: "300px",
             backgroundColor: "#796385",
+            zIndex: "2"
         };
 
         

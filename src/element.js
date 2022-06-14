@@ -102,11 +102,14 @@ export function Node(props) {
         padding: "4px",
         };
 
-        
+    const topEditor = props.clientY - 185; // for Editors offset, added while solving problem with stacking context
     const styleEditor = {
         width: "420px",
         position: "absolute",
-        top: "-185px",
+        // top: "-185px",
+        top: topEditor,
+        left: props.clientX,
+        zIndex: "15",
         };
 
 
@@ -150,6 +153,8 @@ export function Node(props) {
     }
             
     return (
+        <div>
+            {isClicked ? divEditor : null} {/* had to place there to solve stacking context problem */}
             <div
                 id={props.id}
                 style={styleNode}
@@ -176,7 +181,6 @@ export function Node(props) {
                 <div id={props.id + "bottom"} className="pointsOfNode" style={stylePointBottom} onClick={props.onClick} ></div>
                 <div id={props.id + "left"} className="pointsOfNode" style={stylePointLeft} onClick={props.onClick} ></div>
 
-                {isClicked ? divEditor : null}
                 <div
                     style={styleEditorWrapper}
                     id={props.id + "editorWrapper"}
@@ -186,5 +190,7 @@ export function Node(props) {
                     <div dangerouslySetInnerHTML={isClicked ? null : {__html: htmlOutput}}></div>
                 </div>
             </div>
+                
+        </div>
         );
 }
