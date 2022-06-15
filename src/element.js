@@ -2,7 +2,7 @@ import React, { useState, useEffect, useCallback, useRef } from 'react';
 import {EditorState, ContentState, RichUtils, Modifier} from 'draft-js';
 import { Editor } from "react-draft-wysiwyg";
 import "react-draft-wysiwyg/dist/react-draft-wysiwyg.css";
-import {convertToRaw,} from 'draft-js';
+import {convertFromRaw, convertToRaw} from 'draft-js';
 import {stateToHTML} from 'draft-js-export-html';
 import './mainStyles.css';
 
@@ -16,29 +16,28 @@ export function Node(props) {
     const editorStateBlocks = convertToRaw(editorState.getCurrentContent()).blocks;
     const editorStateValue = editorStateBlocks.map(block => (!block.text.trim() && '\n') || block.text).join('\n');
     let html = stateToHTML(editorState.getCurrentContent());
-    // console.log(html)
+    // console.log("This is HTML" + html)
+    // console.log(editorState.getCurrentContent())
+    // let htmlRaw = convertToRaw(editorState.getCurrentContent())
+    // let htmlFromRawRestored = convertFromRaw(htmlRaw)
+    // console.log(htmlFromRawRestored); 
 
 
     const innerRef = useRef(null);  
     let [isClicked, setIsClicked] = useState(false);
 
     const handleClick = (event) => {
-        // console.log(event.target)
-        // console.log(props.id)
-        // console.log(event.target.parentElement.parentElement)
-    
-        // console.log(props.nodeNumber)
-        // console.log(innerRef.current)
 
-        if (event.target.id === "area" || (event.target.className === "node" && event.target.id !== props.id)) {
-            setIsClicked(false)
-            } else if ((event.target.id === props.id || 
-                event.target.id === (props.id + "editorWrapper") || 
-                event.target.parentElement.parentElement.id === props.id || 
-                event.target.parentElement.parentElement.id === (props.id + "editorWrapper")) && 
-                event.target.id !== "area") {
+        for (let i = 0; i < event.path.length; i++) { // can't use Array.map as I need "break" statement
+            if (props.id === event.path[i].id && event.target.className !== "pointsOfNode") {
                 setIsClicked(true)
+                break;
+            } else if (event.target.id === "area" || 
+            event.target.className === "node" && event.target.id !== props.id
+            ) {
+                setIsClicked(false)    
             }
+        }
     }
 
     useEffect(() => {
@@ -74,7 +73,7 @@ export function Node(props) {
 
 
     const styleNode = {
-        // minWidth: "20px",
+        minWidth: "60px",
         // // width: "30px",
         // // height: "50px",
         // minHeight: "20px",

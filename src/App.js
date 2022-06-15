@@ -1,9 +1,8 @@
 import './App.css';
 import {Node} from './element.js';
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import './mainStyles.css';
 import CurvedArrow from "react-curved-arrow";
-
 
 
 function Area(props){
@@ -48,16 +47,12 @@ function Area(props){
             );
         });
 
-        
-
-        
-
 
         const styleArea = {
-            // minWidth: "300px",
+            // width: "3000px",
             width: "100%",
             height: "100%",
-            // minHeight: "300px",
+            // height: "2000px",
             backgroundColor: "#796385",
             zIndex: "2"
         };
@@ -74,7 +69,6 @@ function Area(props){
             </div>
         );
 }
-
 
 
 function MindMap() {
@@ -162,43 +156,13 @@ function MindMap() {
     }
 
 
-    // function handleOnDragStartArrow(arrowNumber, dragStartEvent) { 
-    //     let dragImg = new Image(0,0);
-    //     dragImg.src ='data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7'; // empty image
-    //     dragStartEvent.dataTransfer.setDragImage(dragImg, 0, 0);
-
-
-    //     const historyCopy = history.slice(0, moveNumber + 1); // +1 because end not included in slice
-    //     const current = historyCopy[historyCopy.length - 1]; 
-    //     const nodes = [...current.nodes];
-    //     const arrows = [...current.arrows];
-        
-    //     let arrowAlikeState = {
-    //         fromSelector: "#node0",
-    //         toSelector: "#node1",
-    //     }
-    //     arrows[arrowNumber] = arrowAlikeState; 
-
-
-    //     setHistory(historyCopy.concat([{nodes: nodes, arrows: arrows}]));
-    //     setMoveNumber(historyCopy.length)
-    // }
-
-
-
-
-
-
-
-
-
     function handleDoubleClick(mouseEvent) {
         const historyCopy = history.slice(0, moveNumber + 1); // +1 because end not included in slice; .slice instead of ... should be used because we have to truncate up to moveNumber to discard all needn't moves (it's for undo)
         const current = historyCopy[historyCopy.length - 1]; 
         const nodes = [...current.nodes];
         const arrows = [...current.arrows];
 
-        console.log(mouseEvent.target)
+
         if ((mouseEvent.clientY <= 30 || 
             mouseEvent.clientX <= 30 || 
             mouseEvent.clientX >= mouseEvent.target.offsetWidth - 50 ||
@@ -224,7 +188,6 @@ function MindMap() {
         const clientY = dragEvent.clientY;
         const clientX = dragEvent.clientX;
 
-        // console.log(dragEvent)
 
         if (clientY === 0 && clientX === 0) {
             console.log("zero")
@@ -232,8 +195,8 @@ function MindMap() {
         }
 
         const historyCopy = [...history]; // there .slice isn't used as there no need to store new moves (because there only coordinates changed)
-        historyCopy[historyCopy.length - 1].nodes[nodeNumber].clientY = clientY;
-        historyCopy[historyCopy.length - 1].nodes[nodeNumber].clientX = clientX;
+        historyCopy[historyCopy.length - 1].nodes[nodeNumber].clientX = clientX - dragEvent.target.offsetWidth / 2;
+        historyCopy[historyCopy.length - 1].nodes[nodeNumber].clientY = clientY - dragEvent.target.offsetHeight / 2;
 
         setHistory(historyCopy)
     }
@@ -306,42 +269,55 @@ function MindMap() {
         setMoveNumber(historyCopy.length)
     }
 
-    const styleMovesList = {
+    const styleMindmap = {
+        width: "100%",
+        height: "100%",
+    };
+
+    const styleMovesListWrapper = {
         position: "absolute",
-        top: "10px",
-        left: "10px",
+        top: "40px",
+        right: "15px",
         color: "white",
-        fontFamily: "Arial",
         zIndex: "10",
+        height: "100px",
+        padding: "20px",
+        overflow: "scroll",
         };
+
+    const styleMovesList = {
+        color: "white",
+        zIndex: "10",
+        listStyleType: "none",
+        };
+
+    const styleButtonOfMovesList = {
+        // backgroundColor: "white",
+        fontFamily: "Arial",
+        minWidth: "135px",
+        textAlign: "left"
+        };
+
+    const movesListRef = useRef(null);
+
+    useEffect(() => {
+        movesListRef.current.scrollIntoView({ behavior: 'smooth', block: "end" });
+      }, [moveNumber]);
+        
 
     const moves = history.map((step, moveNumber) => {
         return (
             <li key={moveNumber}>
-                <button 
-                    onClick={() => jumpTo(moveNumber)}
+                <button
+                    style={styleButtonOfMovesList}  
+                    onClick={() => jumpTo(moveNumber)
+                    }
                     >
                         Jump to move: {moveNumber}
                 </button>
             </li>
         );
     });
-
-    // console.log(history[moveNumber].nodes)
-
-
-  
-
-    //   const handleOnClick = () => {
-    //     console.log('one click')
-    //     unmountComponentAtNode(document.getElementById('editor'));
-
-        
-    //   };
-    const styleMindmap = {
-        width: "100%",
-        height: "100%",
-    };
 
 
     return (
@@ -361,9 +337,11 @@ function MindMap() {
                     onDragEnd={(nodeNumber, dragEndEvent, textChange) => handleOnDragEnd(nodeNumber, dragEndEvent, textChange)}
                     onTextChange={(nodeNumber, textChange) => handleOnTextChange(nodeNumber, textChange)}
                 />
-            <ul style={styleMovesList}>
-                {moves}
-            </ul>
+            <div style={styleMovesListWrapper} id="movesListWrapper" >
+                <ul style={styleMovesList} ref={movesListRef}>
+                    {moves}
+                </ul>
+            </div>
         </div>
         );
 }
