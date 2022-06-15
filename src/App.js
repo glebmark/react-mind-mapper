@@ -198,9 +198,12 @@ function MindMap() {
         const nodes = [...current.nodes];
         const arrows = [...current.arrows];
 
-        // console.log(mouseEvent)
-        
-        if (mouseEvent.clientY <= 25 || mouseEvent.clientX <= 25) {
+        console.log(mouseEvent.target)
+        if ((mouseEvent.clientY <= 30 || 
+            mouseEvent.clientX <= 30 || 
+            mouseEvent.clientX >= mouseEvent.target.offsetWidth - 50 ||
+            mouseEvent.clientY >= mouseEvent.target.offsetHeight - 50
+            ) && mouseEvent.target !== "area") {
             return
         } else {
             
