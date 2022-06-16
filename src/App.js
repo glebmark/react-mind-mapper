@@ -3,6 +3,7 @@ import {Node} from './element.js';
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import './mainStyles.css';
 import CurvedArrow from "react-curved-arrow";
+import './buttonStyle.scss';
 
 
 function Area(props){
@@ -278,7 +279,7 @@ function MindMap() {
         position: "absolute",
         top: "40px",
         right: "15px",
-        color: "white",
+        // color: "white",
         zIndex: "10",
         height: "100px",
         padding: "20px",
@@ -286,16 +287,21 @@ function MindMap() {
         };
 
     const styleMovesList = {
-        color: "white",
         zIndex: "10",
         listStyleType: "none",
         };
 
+    const styleJumpsListItem = {
+        // color: "white",
+        listStyleType: "none",
+        // height: "22px",
+        };
+    
     const styleButtonOfMovesList = {
         // backgroundColor: "white",
-        fontFamily: "Arial",
-        minWidth: "135px",
-        textAlign: "left"
+        // fontFamily: "Arial",
+        // minWidth: "135px",
+        // textAlign: "left"
         };
 
     const movesListRef = useRef(null);
@@ -307,9 +313,11 @@ function MindMap() {
 
     const moves = history.map((step, moveNumber) => {
         return (
-            <li key={moveNumber}>
+            <li style={styleJumpsListItem} key={moveNumber}>
                 <button
+                    className="material-bubble"
                     style={styleButtonOfMovesList}  
+                    // class="effect effect-5"
                     onClick={() => jumpTo(moveNumber)
                     }
                     >

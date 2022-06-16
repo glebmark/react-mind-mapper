@@ -8,6 +8,7 @@ import './mainStyles.css';
 
 
 
+
 export function Node(props) {    
     // console.log(props)
     
