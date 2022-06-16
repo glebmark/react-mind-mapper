@@ -4,7 +4,8 @@ import { Editor } from "react-draft-wysiwyg";
 import "react-draft-wysiwyg/dist/react-draft-wysiwyg.css";
 import {convertFromRaw, convertToRaw} from 'draft-js';
 import {stateToHTML} from 'draft-js-export-html';
-import './mainStyles.css';
+import './styles/mainStyles.css';
+import './styles/pointsOfNodeStyles.css';
 
 
 

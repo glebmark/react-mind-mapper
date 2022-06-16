@@ -1,0 +1,29 @@
+html {
+    height: 100%;
+  }
+body {
+    min-height: 100%;
+}
+
+p {
+    display:inline
+}
+
+#root {
+    height: 100vh;
+}
+
+.rdw-editor-main {
+    background-color: white;
+}
+
+/* Hide scrollbar for Chrome, Safari and Opera */
+#movesListWrapper::-webkit-scrollbar {
+    display: none;
+  }
+  
+/* Hide scrollbar for IE, Edge and Firefox */
+#movesListWrapper.example {
+    -ms-overflow-style: none;  /* IE and Edge */
+    scrollbar-width: none;  /* Firefox */
+}

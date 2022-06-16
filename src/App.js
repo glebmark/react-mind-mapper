@@ -1,9 +1,8 @@
-import './App.css';
 import {Node} from './element.js';
 import React, { useState, useEffect, useCallback, useRef } from 'react';
-import './mainStyles.css';
 import CurvedArrow from "react-curved-arrow";
-import './buttonStyle.scss';
+import './styles/mainStyles.css';
+import './styles/buttonStyle.scss';
 
 
 function Area(props){
